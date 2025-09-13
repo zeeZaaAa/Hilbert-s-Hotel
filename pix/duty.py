@@ -1,0 +1,1 @@
+duty = "create function insert, delete, search, sort"

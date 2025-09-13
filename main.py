@@ -1,5 +1,6 @@
+# for import all file and run here!
 from caesar.controller.inputController import createGuess
-from DB.roomData import roomData
+roomData = {}
 
 # input
 old_guess = 10
