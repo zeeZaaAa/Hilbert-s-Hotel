@@ -1,5 +1,5 @@
 # for api
-# for import all file and run here!
+# run here!
 from caesar.controller.inputController import createGuests
 roomData = {}
 
