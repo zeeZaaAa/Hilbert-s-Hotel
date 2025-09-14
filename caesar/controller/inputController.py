@@ -1,6 +1,6 @@
 from ..classes.Guest import Guest
 
-def createGuess(old_guess: int, new_chanel: list, max_chanel: list):
+def createGuests(old_guess: int, new_chanel: list, max_chanel: list):
     if not isinstance(old_guess, int):
         return "Error: old_guess must be only integer"
     
