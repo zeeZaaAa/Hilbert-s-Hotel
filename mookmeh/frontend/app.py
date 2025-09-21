@@ -4,7 +4,7 @@ import requests
 
 app, rt = fast_app()
 
-API_URL = "http://127.0.0.1:8000/api/process"   # backend API
+API_URL = "http://127.0.0.1:8000/create-data"   # backend API
 
 @rt("/")
 def main_page():
@@ -41,6 +41,3 @@ def hotel_page(guests: int, paths: int, channel: int):
         P(f"MEMORIES SPENT: {data['memories_spent']}", cls="text-white text-lg"),
         cls="min-h-screen flex flex-col items-center justify-center bg-black p-10"
     )
-
-if __name__ == "__main__":
-    app.run()

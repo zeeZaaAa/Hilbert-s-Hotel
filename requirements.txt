@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+fasthtml
+requests
+
+#install ทุก lib ทีเดียวด้วย
+pip install -r requirements.txt
