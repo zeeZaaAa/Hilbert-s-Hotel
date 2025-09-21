@@ -60,7 +60,7 @@ async def add_room(req: Request):
         )
         
 @app.delete("/delete-room")
-async def delete_room(roomnumber: str | None = None):
+def delete_room(roomnumber: str | None = None):
     try:
         if not roomnumber:
             return JSONResponse(
@@ -88,7 +88,7 @@ async def delete_room(roomnumber: str | None = None):
         )
     
 @app.get("/search-room")
-async def search(roomnumber: str | None = None):
+def search(roomnumber: str | None = None):
     try:
         if not roomnumber:
             return JSONResponse(
@@ -112,7 +112,7 @@ async def search(roomnumber: str | None = None):
         )
 
 @app.get("/sort-room")
-async def sort_room():
+def sort_room():
     try:
         if not roomData:
             return JSONResponse(
