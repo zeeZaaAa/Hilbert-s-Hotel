@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from caesar.controller.inputController import createGuests
-from caesar.classes.Guest import Guest
 
 roomData = {}
 
