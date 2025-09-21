@@ -14,31 +14,22 @@ old_guess = 10
 chanel = [1,2,3,"bus"]
 max = [5,3,1,4]
 
-guesses = createGuests(old_guess, chanel, max)
-for guess in guesses:
-    print(guess)
+# guesses = createGuests(old_guess, chanel, max)
+# for guess in guesses:
+#     print(guess)
 
-print(roomData)
-roomData["1"] = guesses[0]
-print(roomData)
-value = roomData.get("1")
-print(f'value: {value}')
+# print(roomData)
+# roomData["1"] = guesses[0]
+# print(roomData)
+# value = roomData.get("1")
+# print(f'value: {value}')
 
-# fast api example 
+#######################################
+# fast api example for test call api
 @app.get("/")
 def read_root():
     return {"message": "Hello FastAPI"}
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "query": q}
-
-@app.post("/custom")
-async def custom_response(item: dict):
-    return JSONResponse(
-        content={"message": "Custom response"},
-        status_code=202
-    )
+######################################
 
 # real api
 @app.post("/create-data")
