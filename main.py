@@ -102,7 +102,7 @@ def search(roomnumber: str | None = None):
                 status_code=404
             )
         return JSONResponse(
-            content={"data": {roomnumber: value}},
+            content={"data": {roomnumber: str(value)}},
             status_code=200
         )
     except Exception as e:
