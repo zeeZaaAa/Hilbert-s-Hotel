@@ -4,4 +4,4 @@ class Guest:
         self.order = order
     
     def __str__(self):
-        return "Ch:"+str(self.chanel) + "," + "Num:"+str(self.order)
+        return "Chanel:"+str(self.chanel) + "," + "Order:"+str(self.order)
