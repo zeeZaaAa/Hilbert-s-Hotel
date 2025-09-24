@@ -25,5 +25,15 @@ def createGuests(old_guess: int, new_chanel: list, max_chanel: list):
             g = Guest(chanel, order)
             guests.append(g)
     return guests
+
+def get_roomnumberAndguests(db: dict):
+    if not isinstance(db, dict):
+        return "Error: room data must be only dict"
+    roomnumber = list(db.keys())
+    guests = list(db.values())
+    return roomnumber, guests
+
+    
+
                 
         
