@@ -1,4 +1,3 @@
-duty = "time, memory, create function file-import/export"
 import json
 import time
 import functools
@@ -6,29 +5,39 @@ import sys
 import tracemalloc
 from typing import Any, Callable, List, Dict
 
-# สมมติข้อมูลแขก
+# ------------------------------------------------------------
+# ฟังก์ชันจัดการ JSON
+def save_to_json(data: Any, filename: str):
+    """บันทึกข้อมูลลงไฟล์ JSON"""
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+    print(f"สร้าง JSON เรียบร้อย: {filename}")
+
+def load_from_json(filename: str) -> Any:
+    """อ่านข้อมูลจากไฟล์ JSON"""
+    with open(filename, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    print(f"อ่าน JSON เรียบร้อย: {filename}")
+    return data
+
+# ------------------------------------------------------------
 guests = [
     {"channel_id": 1, "seq_in_channel": 1, "room_number": 1},
     {"channel_id": 1, "seq_in_channel": 2, "room_number": 2},
     {"channel_id": 2, "seq_in_channel": 1, "room_number": 3},
 ]
 
-# สร้างJSON
-json_filename = "hilbert_result.json"
-with open(json_filename, "w", encoding="utf-8") as f:
-    json.dump(guests, f, indent=4, ensure_ascii=False)
+json_filename = "roomData.json"
 
-print(f"สร้าง JSON เรียบร้อย: {json_filename}")
-
-# อ่าน JSON
-with open(json_filename, "r", encoding="utf-8") as f:
-    loaded_guests = json.load(f)
+save_to_json(guests, json_filename)
+loaded_guests = load_from_json(json_filename)
 
 print("---- ข้อมูลจาก JSON ----")
 for g in loaded_guests:
     print(g)
 
 # ------------------------------------------------------------
+# time, memory
 timing_records: List[Dict[str, Any]] = []
 
 def timed(func: Callable = None, *, record_args: bool = True):
@@ -56,10 +65,7 @@ def timed(func: Callable = None, *, record_args: bool = True):
             rec = {
                 "function": func.__name__,
                 "wall_seconds": wall_end - wall_start,
-                # "cpu_seconds": cpu_end - cpu_start,
                 "mem_current_bytes": current,
-                # "mem_peak_bytes": peak,
-                # "timestamp": time.time()
             }
             timing_records.append(rec)
     return wrapper
@@ -82,7 +88,7 @@ def deep_getsizeof(obj: Any, ids: set = None) -> int:
     return size
 
 # ------------------------------------------------------------
-#  สมมติฟังชั่นมาเทส time and memory
+#  test time and memory
 @timed
 def make_numbers(n: int) -> List[int]:
     return list(range(n))
