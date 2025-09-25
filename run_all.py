@@ -8,9 +8,9 @@ root_path = os.path.dirname(os.path.abspath(__file__))
 os.chdir(root_path)
 
 # รัน backend
-subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--reload", "--port", "8000"])
+subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--reload", "--port", "8001"])
 
 # รัน frontend
-subprocess.Popen([sys.executable, "-m", "uvicorn", "mookmeh.frontend.app:app", "--reload", "--port", "3000"])
+subprocess.Popen([sys.executable, "-m", "uvicorn", "mookmeh.frontend.app:app", "--reload", "--port", "5003"])
 
 print("Backend + Frontend running...")

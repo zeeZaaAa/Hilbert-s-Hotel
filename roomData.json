@@ -1,0 +1,17 @@
+[
+    {
+        "channel_id": 1,
+        "seq_in_channel": 1,
+        "room_number": 1
+    },
+    {
+        "channel_id": 1,
+        "seq_in_channel": 2,
+        "room_number": 2
+    },
+    {
+        "channel_id": 2,
+        "seq_in_channel": 1,
+        "room_number": 3
+    }
+]
