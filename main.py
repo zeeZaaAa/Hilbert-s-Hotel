@@ -5,6 +5,8 @@ from fastapi import Request
 from fastapi import Query
 from fastapi.responses import JSONResponse
 from typing import List
+import time
+from pympler import asizeof
 from caesar.controller.inputController import createGuests
 from caesar.controller.inputController import get_roomnumberAndguests
 from caesar.util.add_room import add_room
@@ -47,6 +49,7 @@ def read_root():
 # body = old_guess(int), chanel(List[int]), max(List[int])
 @app.post("/create-data")
 async def create_data(request: Request):
+    start_time = time.perf_counter()
     try:
         data = await request.json()
         old_guess = data["old_guess"]
@@ -63,13 +66,27 @@ async def create_data(request: Request):
         roomnumbers  = [] #mock
         ####################
         roomData = {}
+        
+        start_insert = time.perf_counter()
+        
         for roomnumber,guest in zip(roomnumbers,guests):
             add_room(roomData, roomnumber, guest)
+            
+        end_insert = time.perf_counter()
+        
+        datasize = asizeof.asizeof(roomData)
         
         save_to_json(roomData, "DB/roomData.json")
         
+        end_time = time.perf_counter()
+        
         return JSONResponse(
-            content={"message": f"{len(guests)} rooms created"},
+            content={
+                "message": f"{len(guests)} rooms created",
+                "all_time_taken": f"{end_time - start_time:.4f} seconds",
+                "insert_time_taken": f"{end_insert - start_insert:.4f} seconds",
+                "data_size": f"{datasize/1024:.4f} KB"
+            },
             status_code=200
         )
 
@@ -88,7 +105,8 @@ async def create_data(request: Request):
 # path | POST /add-room
 # body = roomnumber(List[int])
 @app.post("/add-room")
-async def add_room(req: Request):
+async def add_room_api(req: Request):
+    start_time = time.perf_counter()
     try:
         data = await req.json()
         roomnumber = data.get("roomnumber")
@@ -99,22 +117,33 @@ async def add_room(req: Request):
             )
         # calculate roomnumber method
         temporaryRoomdata = {}
-        for room in roomnumber:
-            global count
-            add_room(temporaryRoomdata, room, f"Chanel:force-add,Order:{count}")
-            count+=1
         roomData = load_from_json("DB/roomData.json")
         old_roomnumbers, old_guests = get_roomnumberAndguests(roomData)
         # calculate roomnumber method
         new_roomnumbers  = [] #mock
         ####################
+        start_insert = time.perf_counter()
+        
+        for room in roomnumber:
+            global count
+            add_room(temporaryRoomdata, room, f"Chanel:force-add,Order:{count}")
+            count+=1
         for room, guest in zip(new_roomnumbers, old_guests):
             add_room(temporaryRoomdata, room, guest)
+            
+        end_insert = time.perf_counter()
         
-        save_to_json(roomData, "DB/roomData.json")
+        datasize = asizeof.asizeof(temporaryRoomdata)
+        
+        save_to_json(temporaryRoomdata, "DB/roomData.json")
+        
+        end_time = time.perf_counter()
         
         return JSONResponse(
-            content={"message": f"{len(old_guests)+len(roomnumber)} rooms created"},
+            content={"message": f"{len(old_guests)+len(roomnumber)} rooms created",
+                "all_time_taken": f"{end_time - start_time:.4f} seconds",
+                "insert_time_taken": f"{end_insert - start_insert:.4f} seconds",
+                "data_size": f"{datasize/1024:.4f} KB"},
             status_code=200
         )
         
@@ -134,6 +163,7 @@ async def add_room(req: Request):
 # body = None
 @app.delete("/delete-room")
 def delete_room(roomnumber: List[str] = Query(...)):
+    start_time = time.perf_counter()
     try:
         if not roomnumber:
             return JSONResponse(
@@ -143,6 +173,7 @@ def delete_room(roomnumber: List[str] = Query(...)):
             
         db = load_from_json("DB/roomData.json")
         
+        start_delete = time.perf_counter()
         for room in roomnumber:
             if room not in db:
                 return JSONResponse(
@@ -150,11 +181,19 @@ def delete_room(roomnumber: List[str] = Query(...)):
                     status_code=404
                 )
             delete(db, room)
+        end_delete = time.perf_counter()
+        
+        datasize = asizeof.asizeof(db)
 
         save_to_json(db, "DB/roomData.json")
+        
+        end_time = time.perf_counter()
 
         return JSONResponse(
-            content={"message": f"Room {roomnumber} deleted"},
+            content={"message": f"Room {roomnumber} deleted",
+                "all_time_taken": f"{end_time - start_time:.4f} seconds",
+                "delete_time_taken": f"{end_delete - start_delete:.4f} seconds",
+                "data_size": f"{datasize/1024:.4f} KB"},
             status_code=200
         )
 
@@ -168,6 +207,7 @@ def delete_room(roomnumber: List[str] = Query(...)):
 # body = None
 @app.get("/search-room")
 def search(roomnumber: List[str] = Query(...)):
+    start_time = time.perf_counter()
     try:
         if not roomnumber:
             return JSONResponse(
@@ -178,6 +218,7 @@ def search(roomnumber: List[str] = Query(...)):
         db = load_from_json("DB/roomData.json")
         
         results = {}
+        start_search = time.perf_counter()
         for room in roomnumber:
             if room not in db:
                 return JSONResponse(
@@ -185,9 +226,15 @@ def search(roomnumber: List[str] = Query(...)):
                     status_code=404
                 )
             results[room] = search_room(db, room)
+            
+        datasize = asizeof.asizeof(db)
+        end_time = time.perf_counter()
         
         return JSONResponse(
-            content={"data": results},
+            content={"data": results,
+                "all_time_taken": f"{end_time - start_time:.4f} seconds",
+                "search_time_taken": f"{end_time - start_search:.4f} seconds",
+                "data_size": f"{datasize/1024:.4f} KB"},
             status_code=200
         )
     except Exception as e:
@@ -200,6 +247,7 @@ def search(roomnumber: List[str] = Query(...)):
 # body = None
 @app.get("/sort-room")
 def sort_room():
+    start_time = time.perf_counter()
     try:
         db = load_from_json("DB/roomData.json")
         
@@ -209,12 +257,23 @@ def sort_room():
                 status_code=404
             )
             
+        start_sort = time.perf_counter()
+            
         sorted_rooms = sort_data(db)
+        
+        end_sort = time.perf_counter()
+        
+        datasize = asizeof.asizeof(sorted_rooms)
         
         save_to_json(sorted_rooms, "DB/roomData.json")
         
+        end_time = time.perf_counter()
+        
         return JSONResponse(
-            content={"sorted_rooms": sorted_rooms},
+            content={"sorted_rooms": sorted_rooms,
+                "all_time_taken": f"{end_time - start_time:.4f} seconds",
+                "sort_time_taken": f"{end_sort - start_sort:.4f} seconds",
+                "data_size": f"{datasize/1024:.4f} KB"},
             status_code=200
         )
 
