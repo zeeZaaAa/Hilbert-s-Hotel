@@ -2,7 +2,10 @@
 from fasthtml.common import *
 import requests
 
-app, rt = fast_app()
+app, rt = fast_app(hdrs=(
+    # เพิ่มลิงก์ tailwind css
+    Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"),
+))
 
 API_URL = "http://127.0.0.1:8001"
 
