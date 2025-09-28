@@ -231,7 +231,7 @@ def search(roomnumber: List[str] = Query(...)):
         end_time = time.perf_counter()
         
         return JSONResponse(
-            content={"data": results,
+            content={"results": results,
                 "all_time_taken": f"{end_time - start_time:.4f} seconds",
                 "search_time_taken": f"{end_time - start_search:.4f} seconds",
                 "data_size": f"{datasize/1024:.4f} KB"},

@@ -1,6 +1,7 @@
 # frontend/app.py
 from fasthtml.common import *
 import requests
+import json
 
 app, rt = fast_app(hdrs=(
     # Tailwind CSS
@@ -69,35 +70,62 @@ def main_page():
 @rt("/hotel", methods=["POST"])
 def hotel_page(old_guess: str = None, chanel: str = None, max: str = None):
     try:
+        chanel = [i for i in chanel.split()]
+        max = [int(i) for i in max.split()]
+        if len(max) != len(chanel):
+            raise ValueError("Length of max and chanel must be equal")
+        
         resp = requests.post(f"{API_URL}/create-data", json={
-            "old_guess": old_guess,
+            "old_guess": int(old_guess),
             "chanel": chanel,
             "max": max
         })
-        resp.raise_for_status()
-        data = resp.json()
-        used_time = data.get("time", "N/A")
-        used_mem = data.get("memory", "N/A")
+        try:
+            resp.raise_for_status()  
+            data = resp.json()
+        except requests.exceptions.HTTPError:
+            try:
+                error_data = resp.json()
+                error_msg =  json.dumps(error_data.get("error"))
+            except Exception:
+                error_msg =  json.dumps("Unknown error from API")
+            return Script(f"""
+                Swal.fire({{
+                    title: 'API Error!',
+                    html: {error_msg},
+                    icon: 'error',
+                    confirmButtonText: 'Back'
+                }}).then(() => {{
+                    window.location.href = "/";
+                }});
+            """)
+            
+        message =  json.dumps(data.get("message"))
+        all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
+        insert_time_taken =  json.dumps(data.get("insert_time_taken", "N/A"))
+        data_size =  json.dumps(data.get("data_size", "N/A"))
+        
         return Script(f"""
             Swal.fire({{
                 title: 'Success!',
                 html: 'Input sent to backend:<br>'
-                     + 'old_guess: <b>{old_guess}</b><br>'
-                     + 'chanel: <b>{chanel}</b><br>'
-                     + 'max: <b>{max}</b><br><br>'
-                     + 'Time: <b>{used_time}</b><br>'
-                     + 'Memory: <b>{used_mem}</b>',
+                     + 'message: <b>' + {message} + '</b><br>'
+                     + 'insert time taken: <b>' + {insert_time_taken} + '</b><br>'
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>'
+                     + 'current data size: <b>' + {data_size} + '</b><br>',
                 icon: 'success',
                 confirmButtonText: 'OK'
             }}).then(() => {{
                 window.location.href = "/action";
             }});
         """)
+        
     except Exception as e:
+        error_msg = json.dumps(str(e))
         return Script(f"""
             Swal.fire({{
                 title: 'Error!',
-                html: 'Failed to create data.<br><small>{str(e)}</small>',
+                html: 'Failed to create data.<br><small>' + {error_msg} + '</small>',
                 icon: 'error',
                 confirmButtonText: 'Back'
             }}).then(() => {{
@@ -147,15 +175,15 @@ def styled_form(title, placeholder, action, button_text, btn_color):
 # --- Add/Delete/Search/Sort Pages ---
 @rt("/add-room", methods=["GET"])
 def add_room(): 
-    return styled_form("Add Room", "เช่น 101,102,103 (text)", "/add-room-done", "ADD", "bg-gradient-to-r from-green-500 to-emerald-600")
+    return styled_form("Add Room", "EX: 101 102 103", "/add-room-done", "ADD", "bg-gradient-to-r from-green-500 to-emerald-600")
 
 @rt("/delete-room", methods=["GET"])
 def delete_room_form(): 
-    return styled_form("Delete Room", "เช่น 101,102 (text)", "/delete-room-done", "DELETE", "bg-gradient-to-r from-red-500 to-pink-600")
+    return styled_form("Delete Room", "EX: 101 102", "/delete-room-done", "DELETE", "bg-gradient-to-r from-red-500 to-pink-600")
 
 @rt("/search-room", methods=["GET"])
 def search_room_form(): 
-    return styled_form("Search Room", "เช่น 101,102 (text)", "/search-room-done", "SEARCH", "bg-gradient-to-r from-yellow-500 to-green-600")
+    return styled_form("Search Room", "EX: 101 102", "/search-room-done", "SEARCH", "bg-gradient-to-r from-yellow-500 to-green-600")
 
 @rt("/sort-room", methods=["GET"])
 def sort_room_form():
@@ -176,32 +204,60 @@ def sort_room_form():
 @rt("/add-room-done", methods=["POST"])
 def add_room_done(roomnumber: str = None):
     try:
+        roomnumber = [int(i) for i in roomnumber.split()]
+        
         resp = requests.post(f"{API_URL}/add-room", json={"roomnumber": roomnumber})
-        resp.raise_for_status()
-        data = resp.json()
-        used_time = data.get("time", "N/A")
-        used_mem = data.get("memory", "N/A")
+        
+        try:
+            resp.raise_for_status()  
+            data = resp.json()
+        except requests.exceptions.HTTPError:
+            try:
+                error_data = resp.json()
+                error_msg =  json.dumps(error_data.get("error"))
+            except Exception:
+                error_msg =  json.dumps("Unknown error from API")
+            return Script(f"""
+                Swal.fire({{
+                    title: 'API Error!',
+                    html: {error_msg},
+                    icon: 'error',
+                    confirmButtonText: 'Back'
+                }}).then(() => {{
+                    window.location.href = "/action";
+                }});
+            """)
+
+        message =  json.dumps(data.get("message"))
+        all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
+        insert_time_taken =  json.dumps(data.get("insert_time_taken", "N/A"))
+        data_size =  json.dumps(data.get("data_size", "N/A"))
+        
         return Script(f"""
             Swal.fire({{
-                title: 'Room Added!',
-                html: 'add room <b>{roomnumber}</b> successfully!<br>'
-                     + 'Time: <b>{used_time}</b><br>'
-                     + 'Memory: <b>{used_mem}</b>',
+                title: 'Success!',
+                html: 'Input sent to backend:<br>'
+                     + 'message: <b>' + {message} + '</b><br>'
+                     + 'insert time taken: <b>' + {insert_time_taken} + '</b><br>'
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>'
+                     + 'current data size: <b>' + {data_size} + '</b><br>',
                 icon: 'success',
-                confirmButtonText: 'Go Back'
+                confirmButtonText: 'OK'
             }}).then(() => {{
                 window.location.href = "/action";
             }});
         """)
+        
     except Exception as e:
+        error_msg = json.dumps(str(e))
         return Script(f"""
             Swal.fire({{
                 title: 'Error!',
-                html: 'Failed to add room.<br><small>{str(e)}</small>',
+                html: 'Failed to add room.<br><small>' + {error_msg} + '</small>',
                 icon: 'error',
                 confirmButtonText: 'Back'
             }}).then(() => {{
-                window.location.href = "/add-room";
+                window.location.href = "/action";
             }});
         """)
 
@@ -209,32 +265,60 @@ def add_room_done(roomnumber: str = None):
 @rt("/delete-room-done", methods=["POST"])
 def delete_room_done(roomnumber: str = None):
     try:
+        roomnumber = [int(i) for i in roomnumber.split()]
+        
         resp = requests.delete(f"{API_URL}/delete-room", params={"roomnumber": roomnumber})
-        resp.raise_for_status()
-        data = resp.json()
-        used_time = data.get("time", "N/A")
-        used_mem = data.get("memory", "N/A")
+        
+        try:
+            resp.raise_for_status()  
+            data = resp.json()
+        except requests.exceptions.HTTPError:
+            try:
+                error_data = resp.json()
+                error_msg =  json.dumps(error_data.get("error"))
+            except Exception:
+                error_msg =  json.dumps("Unknown error from API")
+            return Script(f"""
+                Swal.fire({{
+                    title: 'API Error!',
+                    html: {error_msg},
+                    icon: 'error',
+                    confirmButtonText: 'Back'
+                }}).then(() => {{
+                    window.location.href = "/action";
+                }});
+            """)
+
+        message =  json.dumps(data.get("message"))
+        all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
+        delete_time_taken =  json.dumps(data.get("delete_time_taken", "N/A"))
+        data_size =  json.dumps(data.get("data_size", "N/A"))
+        
         return Script(f"""
             Swal.fire({{
-                title: 'Room Deleted!',
-                html: 'delete room <b>{roomnumber}</b> successfully!<br>'
-                     + 'Time: <b>{used_time}</b><br>'
-                     + 'Memory: <b>{used_mem}</b>',
-                icon: 'warning',
+                title: 'Success!',
+                html: 'Input sent to backend:<br>'
+                     + 'message: <b>' + {message} + '</b><br>'
+                     + 'delete time taken: <b>' + {delete_time_taken} + '</b><br>'
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>'
+                     + 'current data size: <b>' + {data_size} + '</b><br>',
+                icon: 'success',
                 confirmButtonText: 'OK'
             }}).then(() => {{
                 window.location.href = "/action";
             }});
         """)
+        
     except Exception as e:
+        error_msg = json.dumps(str(e))
         return Script(f"""
             Swal.fire({{
                 title: 'Error!',
-                html: 'Failed to delete room.<br><small>{str(e)}</small>',
+                html: 'Failed to delete room.<br><small>' + {error_msg} + '</small>',
                 icon: 'error',
                 confirmButtonText: 'Back'
             }}).then(() => {{
-                window.location.href = "/delete-room";
+                window.location.href = "/action";
             }});
         """)
 
@@ -242,32 +326,60 @@ def delete_room_done(roomnumber: str = None):
 @rt("/search-room-done", methods=["POST"])
 def search_room_done(roomnumber: str = None):
     try:
+        roomnumber = [int(i) for i in roomnumber.split()]
+        
         resp = requests.get(f"{API_URL}/search-room", params={"roomnumber": roomnumber})
-        resp.raise_for_status()
-        data = resp.json()
-        used_time = data.get("time", "N/A")
-        used_mem = data.get("memory", "N/A")
-        found = data.get("found", False)
-        msg = f"room <b>{roomnumber}</b> found!" if found else f"room <b>{roomnumber}</b> not found!"
+        
+        try:
+            resp.raise_for_status()  
+            data = resp.json()
+        except requests.exceptions.HTTPError:
+            try:
+                error_data = resp.json()
+                error_msg =  json.dumps(error_data.get("error"))
+            except Exception:
+                error_msg =  json.dumps("Unknown error from API")
+            return Script(f"""
+                Swal.fire({{
+                    title: 'API Error!',
+                    html: {error_msg},
+                    icon: 'error',
+                    confirmButtonText: 'Back'
+                }}).then(() => {{
+                    window.location.href = "/action";
+                }});
+            """)
+
+        results =  json.dumps(data.get("results"))
+        all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
+        search_time_taken =  json.dumps(data.get("search_time_taken", "N/A"))
+        data_size =  json.dumps(data.get("data_size", "N/A"))
+        
         return Script(f"""
             Swal.fire({{
-                title: 'Search Result',
-                html: '{msg}<br>Time: <b>{used_time}</b><br>Memory: <b>{used_mem}</b>',
-                icon: 'info',
+                title: 'Success!',
+                html: 'Input sent to backend:<br>'
+                     + 'results: <b>' + {results} + '</b><br>'
+                     + 'search time taken: <b>' + {search_time_taken} + '</b><br>'
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>'
+                     + 'current data size: <b>' + {data_size} + '</b><br>',
+                icon: 'success',
                 confirmButtonText: 'OK'
             }}).then(() => {{
                 window.location.href = "/action";
             }});
         """)
+        
     except Exception as e:
+        error_msg = json.dumps(str(e))
         return Script(f"""
             Swal.fire({{
                 title: 'Error!',
-                html: 'Search failed.<br><small>{str(e)}</small>',
+                html: 'Failed to search room.<br><small>' + {error_msg} + '</small>',
                 icon: 'error',
                 confirmButtonText: 'Back'
             }}).then(() => {{
-                window.location.href = "/search-room";
+                window.location.href = "/action";
             }});
         """)
 
@@ -276,32 +388,55 @@ def search_room_done(roomnumber: str = None):
 def sort_room_done():
     try:
         resp = requests.get(f"{API_URL}/sort-room")
-        resp.raise_for_status()
-        data = resp.json()
-        used_time = data.get("time", "N/A")
-        used_mem = data.get("memory", "N/A")
-        sorted_rooms = data.get("sorted_rooms", [])
+        try:
+            resp.raise_for_status()  
+            data = resp.json()
+        except requests.exceptions.HTTPError:
+            try:
+                error_data = resp.json()
+                error_msg =  json.dumps(error_data.get("error"))
+            except Exception:
+                error_msg =  json.dumps("Unknown error from API")
+            return Script(f"""
+                Swal.fire({{
+                    title: 'API Error!',
+                    html: {error_msg},
+                    icon: 'error',
+                    confirmButtonText: 'Back'
+                }}).then(() => {{
+                    window.location.href = "/action";
+                }});
+            """)
+            
+        sorted_rooms =  json.dumps(data.get("sorted_rooms"))
+        all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
+        sort_time_taken =  json.dumps(data.get("sort_time_taken", "N/A"))
+        data_size =  json.dumps(data.get("data_size", "N/A"))
+        
         return Script(f"""
             Swal.fire({{
-                title: 'Rooms Sorted!',
-                html: 'sort room successfully!<br>'
-                     + 'Time: <b>{used_time}</b><br>'
-                     + 'Memory: <b>{used_mem}</b><br>'
-                     + 'Sorted Rooms: <b>{', '.join(map(str, sorted_rooms))}</b>',
+                title: 'Success!',
+                html: 'Input sent to backend:<br>'
+                     + 'sorted_rooms: <b>' + {sorted_rooms} + '</b><br>'
+                     + 'sort time taken: <b>' + {sort_time_taken} + '</b><br>'
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>'
+                     + 'current data size: <b>' + {data_size} + '</b><br>',
                 icon: 'success',
-                confirmButtonText: 'Back'
+                confirmButtonText: 'OK'
             }}).then(() => {{
                 window.location.href = "/action";
             }});
         """)
+        
     except Exception as e:
+        error_msg = json.dumps(str(e))
         return Script(f"""
             Swal.fire({{
                 title: 'Error!',
-                html: 'Sorting failed.<br><small>{str(e)}</small>',
+                html: 'Failed to sort room.<br><small>' + {error_msg} + '</small>',
                 icon: 'error',
                 confirmButtonText: 'Back'
             }}).then(() => {{
-                window.location.href = "/sort-room";
+                window.location.href = "/action";
             }});
         """)
