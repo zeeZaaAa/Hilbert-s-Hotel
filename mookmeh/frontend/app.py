@@ -8,7 +8,7 @@ app, rt = fast_app(hdrs=(
     Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"),
     # SweetAlert2
     Script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11"),
-    # Custom SweetAlert2 Theme (dark)
+    # Custom SweetAlert2 
     Style("""
     .swal2-popup {
         background: linear-gradient(to bottom right, #0f172a, #1e293b, #312e81) !important;
@@ -175,15 +175,15 @@ def styled_form(title, placeholder, action, button_text, btn_color):
 # --- Add/Delete/Search/Sort Pages ---
 @rt("/add-room", methods=["GET"])
 def add_room(): 
-    return styled_form("Add Room", "EX: 101 102 103", "/add-room-done", "ADD", "bg-gradient-to-r from-green-500 to-emerald-600")
+    return styled_form("Add Room", "EX: 101", "/add-room-done", "ADD", "bg-gradient-to-r from-green-500 to-emerald-600")
 
 @rt("/delete-room", methods=["GET"])
 def delete_room_form(): 
-    return styled_form("Delete Room", "EX: 101 102", "/delete-room-done", "DELETE", "bg-gradient-to-r from-red-500 to-pink-600")
+    return styled_form("Delete Room", "EX: 101", "/delete-room-done", "DELETE", "bg-gradient-to-r from-red-500 to-pink-600")
 
 @rt("/search-room", methods=["GET"])
 def search_room_form(): 
-    return styled_form("Search Room", "EX: 101 102", "/search-room-done", "SEARCH", "bg-gradient-to-r from-yellow-500 to-green-600")
+    return styled_form("Search Room", "EX: 101", "/search-room-done", "SEARCH", "bg-gradient-to-r from-yellow-500 to-green-600")
 
 @rt("/sort-room", methods=["GET"])
 def sort_room_form():
