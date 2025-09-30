@@ -272,6 +272,12 @@ def sort_room():
         sorted_rooms = sort_data(db)
         
         end_sort = time.perf_counter()
+
+        if not isinstance(sorted_rooms, dict):
+            return JSONResponse(
+            content={"error": sorted_rooms},
+            status_code=500
+            )
         
         datasize = asizeof.asizeof(sorted_rooms)
         
