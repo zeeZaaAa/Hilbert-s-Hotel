@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from typing import List
 import time
 from pympler import asizeof
+import json
 from caesar.controller.inputController import createGuests
 from caesar.controller.inputController import get_roomnumberAndguests
 from caesar.util.add_room import add_room
@@ -241,7 +242,7 @@ def search(roomnumber: List[str] = Query(...)):
         end_time = time.perf_counter()
         
         return JSONResponse(
-            content={"results": results,
+            content={"results": json.dumps(results),
                 "all_time_taken": f"{end_time - start_time:.4f} seconds",
                 "search_time_taken": f"{end_time - start_search:.4f} seconds",
                 "data_size": f"{datasize/1024:.4f} KB"},
@@ -286,7 +287,7 @@ def sort_room():
         end_time = time.perf_counter()
         
         return JSONResponse(
-            content={"sorted_rooms": sorted_rooms,
+            content={"sorted_rooms": json.dumps(sorted_rooms),
                 "all_time_taken": f"{end_time - start_time:.4f} seconds",
                 "sort_time_taken": f"{end_sort - start_sort:.4f} seconds",
                 "data_size": f"{datasize/1024:.4f} KB"},
