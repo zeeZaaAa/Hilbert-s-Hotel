@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from typing import List
 import time
 from pympler import asizeof
+import json
 from caesar.controller.inputController import createGuests
 from caesar.controller.inputController import get_roomnumberAndguests
 from caesar.util.add_room import add_room
@@ -15,6 +16,7 @@ from caesar.util.sort_data import sort_data
 from caesar.util.search import search_room
 from icy.duty import save_to_json
 from icy.duty import load_from_json
+from pix.util.add_guest import add
 
 app = FastAPI()
 
@@ -56,23 +58,32 @@ async def create_data(request: Request):
         chanel = data["chanel"]
         max = data["max"]
         
-        guests = createGuests(old_guess, chanel, max)
-        if not isinstance(guests, list):
+        old, new = createGuests(old_guess, chanel, max)
+        if not isinstance(old, list):
             return JSONResponse(
-            content={"error": guests},
+            content={"error": old},
             status_code=400
         )
-        # calculate roomnumber method
-        roomnumbers  = [] #mock
-        ####################
+        if not isinstance(new, list):
+            return JSONResponse(
+            content={"error": new},
+            status_code=400
+        )
         roomData = {}
         
         start_insert = time.perf_counter()
-        
-        for roomnumber,guest in zip(roomnumbers,guests):
-            add_room(roomData, roomnumber, guest)
+
+        roomData = add(roomData, old)
+
+        roomData = add(roomData, new)
             
         end_insert = time.perf_counter()
+
+        if not isinstance(roomData, dict):
+            return JSONResponse(
+            content={"error": roomData},
+            status_code=400
+        )
         
         datasize = asizeof.asizeof(roomData)
         
@@ -82,7 +93,7 @@ async def create_data(request: Request):
         
         return JSONResponse(
             content={
-                "message": f"{len(guests)} rooms created",
+                "message": f"{len(old) + len(new)} rooms created",
                 "all_time_taken": f"{end_time - start_time:.4f} seconds",
                 "insert_time_taken": f"{end_insert - start_insert:.4f} seconds",
                 "data_size": f"{datasize/1024:.4f} KB"
@@ -231,7 +242,7 @@ def search(roomnumber: List[str] = Query(...)):
         end_time = time.perf_counter()
         
         return JSONResponse(
-            content={"results": results,
+            content={"results": json.dumps(results),
                 "all_time_taken": f"{end_time - start_time:.4f} seconds",
                 "search_time_taken": f"{end_time - start_search:.4f} seconds",
                 "data_size": f"{datasize/1024:.4f} KB"},
@@ -262,6 +273,12 @@ def sort_room():
         sorted_rooms = sort_data(db)
         
         end_sort = time.perf_counter()
+
+        if not isinstance(sorted_rooms, dict):
+            return JSONResponse(
+            content={"error": sorted_rooms},
+            status_code=500
+            )
         
         datasize = asizeof.asizeof(sorted_rooms)
         
@@ -270,7 +287,7 @@ def sort_room():
         end_time = time.perf_counter()
         
         return JSONResponse(
-            content={"sorted_rooms": sorted_rooms,
+            content={"sorted_rooms": json.dumps(sorted_rooms),
                 "all_time_taken": f"{end_time - start_time:.4f} seconds",
                 "sort_time_taken": f"{end_sort - start_sort:.4f} seconds",
                 "data_size": f"{datasize/1024:.4f} KB"},
