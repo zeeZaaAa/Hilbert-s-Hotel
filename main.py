@@ -15,6 +15,7 @@ from caesar.util.sort_data import sort_data
 from caesar.util.search import search_room
 from icy.duty import save_to_json
 from icy.duty import load_from_json
+from pix.util.add_guest import add
 
 app = FastAPI()
 
@@ -62,17 +63,19 @@ async def create_data(request: Request):
             content={"error": guests},
             status_code=400
         )
-        # calculate roomnumber method
-        roomnumbers  = [] #mock
-        ####################
         roomData = {}
         
         start_insert = time.perf_counter()
-        
-        for roomnumber,guest in zip(roomnumbers,guests):
-            add_room(roomData, roomnumber, guest)
+
+        roomData = add(roomData, guests)
             
         end_insert = time.perf_counter()
+
+        if not isinstance(roomData, dict):
+            return JSONResponse(
+            content={"error": roomData},
+            status_code=400
+        )
         
         datasize = asizeof.asizeof(roomData)
         
