@@ -33,7 +33,7 @@ def merge_sort_iterative(arr):
 
 def sort_data(db: dict):
     try:
-        items = list(db.items())
+        items = [(k, str(v)) for k, v in db.items()]
         sorted_items = merge_sort_iterative(items)
         return dict(sorted_items)
     except ValueError as e:
