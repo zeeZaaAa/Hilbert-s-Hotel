@@ -57,17 +57,24 @@ async def create_data(request: Request):
         chanel = data["chanel"]
         max = data["max"]
         
-        guests = createGuests(old_guess, chanel, max)
-        if not isinstance(guests, list):
+        old, new = createGuests(old_guess, chanel, max)
+        if not isinstance(old, list):
             return JSONResponse(
-            content={"error": guests},
+            content={"error": old},
+            status_code=400
+        )
+        if not isinstance(new, list):
+            return JSONResponse(
+            content={"error": new},
             status_code=400
         )
         roomData = {}
         
         start_insert = time.perf_counter()
 
-        roomData = add(roomData, guests)
+        roomData = add(roomData, old)
+
+        roomData = add(roomData, new)
             
         end_insert = time.perf_counter()
 

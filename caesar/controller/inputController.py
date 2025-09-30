@@ -10,11 +10,12 @@ def createGuests(old_guess: int, new_chanel: list, max_chanel: list):
     if len(new_chanel) != len(max_chanel):
         return "Error: chanel and number size doesnt match"
     
-    guests = []
+    old_guests = []
+    new_guests = []
     
     for order in range(1, old_guess+1):
         g = Guest("old", order)
-        guests.append(g)
+        old_guests.append(g)
     
     for chanel, max in zip(new_chanel, max_chanel):
         if str(chanel) == "old":
@@ -23,8 +24,8 @@ def createGuests(old_guess: int, new_chanel: list, max_chanel: list):
             return "Error: max_chanel must contain only integers"
         for order in range(1, max+1):
             g = Guest(chanel, order)
-            guests.append(g)
-    return guests
+            new_guests.append(g)
+    return old_guests, new_guests
 
 def get_roomnumberAndguests(db: dict):
     if not isinstance(db, dict):
