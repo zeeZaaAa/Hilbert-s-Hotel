@@ -92,7 +92,7 @@ async def create_data(request: Request):
         
         return JSONResponse(
             content={
-                "message": f"{len(guests)} rooms created",
+                "message": f"{len(old) + len(new)} rooms created",
                 "all_time_taken": f"{end_time - start_time:.4f} seconds",
                 "insert_time_taken": f"{end_insert - start_insert:.4f} seconds",
                 "data_size": f"{datasize/1024:.4f} KB"
