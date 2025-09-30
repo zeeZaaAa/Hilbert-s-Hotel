@@ -76,7 +76,13 @@ async def create_data(request: Request):
         roomData = add(roomData, old)
 
         roomData = add(roomData, new)
-            
+        # start = 0
+        # for guest in max:
+        #     guest = int(guest)
+        #     sliceData = new[start:start+guest]
+        #     roomData = add(roomData, sliceData)
+        #     start+=guest
+
         end_insert = time.perf_counter()
 
         if not isinstance(roomData, dict):
@@ -86,6 +92,7 @@ async def create_data(request: Request):
         )
         
         datasize = asizeof.asizeof(roomData)
+        # datasize = 1
         
         save_to_json(roomData, "DB/roomData.json")
         
