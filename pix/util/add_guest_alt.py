@@ -1,11 +1,11 @@
-def add(db :dict, chanel :list):
+def add(db :dict, channel :list):
     if  not isinstance(db, dict):
         return "Error, db must be a dict"
     
-    if not isinstance(chanel, list):
-        return "Error, list_of_guest must be a list"
+    if not isinstance(channel, list):
+        return "Error, channel must be a list"
     
-    for c in chanel:
+    for c in channel:
         db = _add(db, c)
         if not isinstance(db, dict):
             return db
