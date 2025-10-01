@@ -20,33 +20,10 @@ from pix.util.add_guest import add
 
 app = FastAPI()
 
-# input
-old_guess = 10
-chanel = [1,2,3,"bus"]
-max = [5,3,1,4]
+roomData = {}
 
 count = 1
 
-# guesses = createGuests(old_guess, chanel, max)
-# for guess in guesses:
-#     print(guess)
-
-# print(roomData)
-# roomData["1"] = guesses[0]
-# print(roomData)
-# value = roomData.get("1")
-# print(f'value: {value}')
-
-#######################################
-# fast api example for test call api
-@app.get("/")
-def read_root():
-    return {"message": "Hello FastAPI"}
-######################################
-
-#################################
-# real api
-##################################
 # path | POST /create-data
 # body = old_guess(int), chanel(List[int]), max(List[int])
 @app.post("/create-data")
@@ -69,6 +46,8 @@ async def create_data(request: Request):
             content={"error": new},
             status_code=400
         )
+        
+        global roomData
         roomData = {}
         
         start_insert = time.perf_counter()
@@ -90,12 +69,6 @@ async def create_data(request: Request):
             content={"error": roomData},
             status_code=400
         )
-        
-        datasize = asizeof.asizeof(roomData)
-        # datasize = 1
-        
-        save_to_json(roomData, "DB/roomData.json")
-        
         end_time = time.perf_counter()
         
         return JSONResponse(
@@ -103,7 +76,6 @@ async def create_data(request: Request):
                 "message": f"{len(old) + len(new)} rooms created",
                 "all_time_taken": f"{end_time - start_time:.4f} seconds",
                 "insert_time_taken": f"{end_insert - start_insert:.4f} seconds",
-                "data_size": f"{datasize/1024:.4f} KB"
             },
             status_code=200
         )
@@ -189,29 +161,23 @@ def delete_room(roomnumber: List[str] = Query(...)):
                 status_code=400
             )
             
-        db = load_from_json("DB/roomData.json")
+        global roomData
         
         start_delete = time.perf_counter()
         for room in roomnumber:
-            if room not in db:
+            if room not in roomData:
                 return JSONResponse(
                     content={"error": f"Room not found: {room}"},
                     status_code=404
                 )
-            delete(db, room)
+            delete(roomData, room)
         end_delete = time.perf_counter()
-        
-        datasize = asizeof.asizeof(db)
-
-        save_to_json(db, "DB/roomData.json")
-        
-        end_time = time.perf_counter()
 
         return JSONResponse(
             content={"message": f"Room {roomnumber} deleted",
-                "all_time_taken": f"{end_time - start_time:.4f} seconds",
+                "all_time_taken": f"{end_delete - start_time:.4f} seconds",
                 "delete_time_taken": f"{end_delete - start_delete:.4f} seconds",
-                "data_size": f"{datasize/1024:.4f} KB"},
+            },
             status_code=200
         )
 
@@ -233,26 +199,25 @@ def search(roomnumber: List[str] = Query(...)):
                 status_code=400
             )
             
-        db = load_from_json("DB/roomData.json")
+        global roomData
         
         results = {}
         start_search = time.perf_counter()
         for room in roomnumber:
-            if room not in db:
+            if room not in roomData:
                 return JSONResponse(
                     content={"error": f"Room not found: {room}"},
                     status_code=404
                 )
-            results[room] = search_room(db, room)
+            results[room] = search_room(roomData, room)
             
-        datasize = asizeof.asizeof(db)
         end_time = time.perf_counter()
         
         return JSONResponse(
             content={"results": json.dumps(results),
                 "all_time_taken": f"{end_time - start_time:.4f} seconds",
                 "search_time_taken": f"{end_time - start_search:.4f} seconds",
-                "data_size": f"{datasize/1024:.4f} KB"},
+                },
             status_code=200
         )
     except Exception as e:
@@ -267,9 +232,9 @@ def search(roomnumber: List[str] = Query(...)):
 def sort_room():
     start_time = time.perf_counter()
     try:
-        db = load_from_json("DB/roomData.json")
+        global roomData
         
-        if not db:
+        if not roomData:
             return JSONResponse(
                 content={"error": "No rooms available"},
                 status_code=404
@@ -277,7 +242,7 @@ def sort_room():
             
         start_sort = time.perf_counter()
             
-        sorted_rooms = sort_data(db)
+        sorted_rooms = sort_data(roomData)
         
         end_sort = time.perf_counter()
 
@@ -287,17 +252,65 @@ def sort_room():
             status_code=500
             )
         
-        datasize = asizeof.asizeof(sorted_rooms)
-        
-        save_to_json(sorted_rooms, "DB/roomData.json")
-        
         end_time = time.perf_counter()
         
         return JSONResponse(
             content={"sorted_rooms": json.dumps(sorted_rooms),
                 "all_time_taken": f"{end_time - start_time:.4f} seconds",
                 "sort_time_taken": f"{end_sort - start_sort:.4f} seconds",
+                },
+            status_code=200
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Internal server error: {str(e)}"},
+            status_code=500
+        )
+        
+@app.get("/data-size")
+def get_data_size():
+    start_time = time.perf_counter()
+    try:
+        global roomData
+        if not roomData:
+            return JSONResponse(
+                content={"error": "No rooms available"},
+                status_code=404
+            )
+            
+        datasize = asizeof.asizeof(roomData)
+        end_sizing = time.perf_counter()
+        
+        return JSONResponse(
+            content={"all_time_taken": f"{end_sizing - start_time:.4f} seconds",
                 "data_size": f"{datasize/1024:.4f} KB"},
+            status_code=200
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Internal server error: {str(e)}"},
+            status_code=500
+        )
+        
+@app.get("/save-file")
+def save_file():
+    start_time = time.perf_counter()
+    try:
+        global roomData
+        if not roomData:
+            return JSONResponse(
+                content={"error": "No rooms available"},
+                status_code=404
+            )
+            
+        save_to_json(roomData, "File/roomData.json")
+        end_save = time.perf_counter()
+        
+        return JSONResponse(
+            content={"all_time_taken": f"{end_save - start_time:.4f} seconds",
+                "message": "File Saved!"},
             status_code=200
         )
 
