@@ -103,7 +103,6 @@ def hotel_page(old_guess: str = None, chanel: str = None, max: str = None):
         message =  json.dumps(data.get("message"))
         all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
         insert_time_taken =  json.dumps(data.get("insert_time_taken", "N/A"))
-        data_size =  json.dumps(data.get("data_size", "N/A"))
         
         return Script(f"""
             Swal.fire({{
@@ -111,8 +110,7 @@ def hotel_page(old_guess: str = None, chanel: str = None, max: str = None):
                 html: 'Input sent to backend:<br>'
                      + 'message: <b>' + {message} + '</b><br>'
                      + 'insert time taken: <b>' + {insert_time_taken} + '</b><br>'
-                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>'
-                     + 'current data size: <b>' + {data_size} + '</b><br>',
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>',
                 icon: 'success',
                 confirmButtonText: 'OK'
             }}).then(() => {{
@@ -231,7 +229,6 @@ def add_room_done(roomnumber: str = None):
         message =  json.dumps(data.get("message"))
         all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
         insert_time_taken =  json.dumps(data.get("insert_time_taken", "N/A"))
-        data_size =  json.dumps(data.get("data_size", "N/A"))
         
         return Script(f"""
             Swal.fire({{
@@ -239,8 +236,7 @@ def add_room_done(roomnumber: str = None):
                 html: 'Input sent to backend:<br>'
                      + 'message: <b>' + {message} + '</b><br>'
                      + 'insert time taken: <b>' + {insert_time_taken} + '</b><br>'
-                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>'
-                     + 'current data size: <b>' + {data_size} + '</b><br>',
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>',
                 icon: 'success',
                 confirmButtonText: 'OK'
             }}).then(() => {{
@@ -292,7 +288,6 @@ def delete_room_done(roomnumber: str = None):
         message =  json.dumps(data.get("message"))
         all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
         delete_time_taken =  json.dumps(data.get("delete_time_taken", "N/A"))
-        data_size =  json.dumps(data.get("data_size", "N/A"))
         
         return Script(f"""
             Swal.fire({{
@@ -300,8 +295,7 @@ def delete_room_done(roomnumber: str = None):
                 html: 'Input sent to backend:<br>'
                      + 'message: <b>' + {message} + '</b><br>'
                      + 'delete time taken: <b>' + {delete_time_taken} + '</b><br>'
-                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>'
-                     + 'current data size: <b>' + {data_size} + '</b><br>',
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>',
                 icon: 'success',
                 confirmButtonText: 'OK'
             }}).then(() => {{
@@ -353,7 +347,6 @@ def search_room_done(roomnumber: str = None):
         results =  json.dumps(data.get("results"))
         all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
         search_time_taken =  json.dumps(data.get("search_time_taken", "N/A"))
-        data_size =  json.dumps(data.get("data_size", "N/A"))
         
         return Script(f"""
             Swal.fire({{
@@ -361,8 +354,7 @@ def search_room_done(roomnumber: str = None):
                 html: 'Input sent to backend:<br>'
                      + 'results: <b>' + {results} + '</b><br>'
                      + 'search time taken: <b>' + {search_time_taken} + '</b><br>'
-                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>'
-                     + 'current data size: <b>' + {data_size} + '</b><br>',
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>',
                 icon: 'success',
                 confirmButtonText: 'OK'
             }}).then(() => {{
@@ -411,7 +403,6 @@ def sort_room_done():
         sorted_rooms =  json.dumps(data.get("sorted_rooms"))
         all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
         sort_time_taken =  json.dumps(data.get("sort_time_taken", "N/A"))
-        data_size =  json.dumps(data.get("data_size", "N/A"))
         
         return Script(f"""
             Swal.fire({{
@@ -419,8 +410,7 @@ def sort_room_done():
                 html: 'Input sent to backend:<br>'
                      + 'sorted_rooms: <b>' + {sorted_rooms} + '</b><br>'
                      + 'sort time taken: <b>' + {sort_time_taken} + '</b><br>'
-                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>'
-                     + 'current data size: <b>' + {data_size} + '</b><br>',
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>',
                 icon: 'success',
                 confirmButtonText: 'OK'
             }}).then(() => {{

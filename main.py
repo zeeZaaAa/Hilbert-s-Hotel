@@ -123,17 +123,11 @@ async def add_room_api(req: Request):
             
         end_insert = time.perf_counter()
         
-        datasize = asizeof.asizeof(temporaryRoomdata)
-        
-        save_to_json(temporaryRoomdata, "DB/roomData.json")
-        
-        end_time = time.perf_counter()
-        
         return JSONResponse(
             content={"message": f"{len(old_guests)+len(roomnumber)} rooms created",
-                "all_time_taken": f"{end_time - start_time:.4f} seconds",
+                "all_time_taken": f"{end_insert - start_time:.4f} seconds",
                 "insert_time_taken": f"{end_insert - start_insert:.4f} seconds",
-                "data_size": f"{datasize/1024:.4f} KB"},
+                },
             status_code=200
         )
         
@@ -165,6 +159,7 @@ def delete_room(roomnumber: List[str] = Query(...)):
         
         start_delete = time.perf_counter()
         for room in roomnumber:
+            room = int(room)
             if room not in roomData:
                 return JSONResponse(
                     content={"error": f"Room not found: {room}"},
@@ -204,6 +199,7 @@ def search(roomnumber: List[str] = Query(...)):
         results = {}
         start_search = time.perf_counter()
         for room in roomnumber:
+            room = int(room)
             if room not in roomData:
                 return JSONResponse(
                     content={"error": f"Room not found: {room}"},
