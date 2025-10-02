@@ -9,11 +9,11 @@ def add(db :dict, list_of_guest :list):
     current_keys = list(db.keys())
     for key in current_keys:
         old_guest = db[key]
-        db[key+num_to_shift] = old_guest
+        db[key+num_to_shift] = str(old_guest)
         db.pop(key)
 
     room_num = 1
     for guest in list_of_guest:
-        db[room_num] = guest
+        db[room_num] = str(guest)
         room_num+=1
     return db
