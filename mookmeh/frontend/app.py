@@ -146,6 +146,21 @@ def action_page():
                   cls="block w-full mb-4 py-3 px-4 rounded bg-gradient-to-r from-yellow-500 to-orange-600 text-white text-center font-medium hover:opacity-90 transition"),
                 A("Sort Room", href="/sort-room",
                   cls="block w-full mb-4 py-3 px-4 rounded bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-center font-medium hover:opacity-90 transition"),
+                Div(
+                    Form(
+                        Button("Save File",
+                               cls="w-full py-3 rounded bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:opacity-90 transition"),
+                        action="/save-file-done", method="post",
+                        cls="flex-1",
+                    ),
+                    Form(
+                        Button("Current Data Size", 
+                               cls="w-full py-3 rounded bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:opacity-90 transition"),
+                        action="/data-size-done", method="post",
+                        cls="flex-1",
+                    ),
+                    cls="mt-6 space-x-4 flex"
+                ),
                 cls="max-w-md mx-auto"
             ),
             cls="bg-black/70 p-10 rounded-2xl shadow-2xl w-full max-w-lg"
