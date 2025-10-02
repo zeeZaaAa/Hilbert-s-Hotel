@@ -430,3 +430,110 @@ def sort_room_done():
                 window.location.href = "/action";
             }});
         """)
+        
+@rt("/data-size-done", methods=["POST"])
+def sort_room_done():
+    try:
+        resp = requests.get(f"{API_URL}/data-size")
+        try:
+            resp.raise_for_status()  
+            data = resp.json()
+        except requests.exceptions.HTTPError:
+            try:
+                error_data = resp.json()
+                error_msg =  json.dumps(error_data.get("error"))
+            except Exception:
+                error_msg =  json.dumps("Unknown error from API")
+            return Script(f"""
+                Swal.fire({{
+                    title: 'API Error!',
+                    html: {error_msg},
+                    icon: 'error',
+                    confirmButtonText: 'Back'
+                }}).then(() => {{
+                    window.location.href = "/action";
+                }});
+            """)
+            
+        all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
+        data_size = json.dumps(data.get("data_size", "N/A"))
+
+        
+        return Script(f"""
+            Swal.fire({{
+                title: 'Success!',
+                html: 'Input sent to backend:<br>'
+                     + 'current data size: <b>' + {data_size} + '</b><br>'
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }}).then(() => {{
+                window.location.href = "/action";
+            }});
+        """)
+        
+    except Exception as e:
+        error_msg = json.dumps(str(e))
+        return Script(f"""
+            Swal.fire({{
+                title: 'Error!',
+                html: 'Failed to sort room.<br><small>' + {error_msg} + '</small>',
+                icon: 'error',
+                confirmButtonText: 'Back'
+            }}).then(() => {{
+                window.location.href = "/action";
+            }});
+        """)
+        
+@rt("/save-file-done", methods=["POST"])
+def sort_room_done():
+    try:
+        resp = requests.get(f"{API_URL}/save-file")
+        try:
+            resp.raise_for_status()  
+            data = resp.json()
+        except requests.exceptions.HTTPError:
+            try:
+                error_data = resp.json()
+                error_msg =  json.dumps(error_data.get("error"))
+            except Exception:
+                error_msg =  json.dumps("Unknown error from API")
+            return Script(f"""
+                Swal.fire({{
+                    title: 'API Error!',
+                    html: {error_msg},
+                    icon: 'error',
+                    confirmButtonText: 'Back'
+                }}).then(() => {{
+                    window.location.href = "/action";
+                }});
+            """)
+            
+        message =  json.dumps(data.get("message"))
+        all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
+        
+        return Script(f"""
+            Swal.fire({{
+                title: 'Success!',
+                html: 'Input sent to backend:<br>'
+                     + 'message: <b>' + {message} + '</b><br>'
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }}).then(() => {{
+                window.location.href = "/action";
+            }});
+        """)
+        
+    except Exception as e:
+        error_msg = json.dumps(str(e))
+        return Script(f"""
+            Swal.fire({{
+                title: 'Error!',
+                html: 'Failed to sort room.<br><small>' + {error_msg} + '</small>',
+                icon: 'error',
+                confirmButtonText: 'Back'
+            }}).then(() => {{
+                window.location.href = "/action";
+            }});
+        """)
