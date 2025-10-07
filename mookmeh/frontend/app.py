@@ -136,6 +136,13 @@ def hotel_page(old_guess: str = None, chanel: str = None, max: str = None):
 def action_page():
     return Div(
         Div(
+            Div(
+                A("<= CREATE NEW DATA", href="/",
+                cls="block w-full mb-4 py-3 px-4 rounded bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-center font-medium hover:opacity-90 transition"),
+                A("  ADD MORE DATA  =>", href="/add-data",
+                cls="block w-full mb-4 py-3 px-4 rounded bg-yellow-500 text-white text-center font-medium hover:opacity-90 transition"),
+                cls="flex justify-between mb-6 space-x-8"
+                ),
             H1("Hotel Actions", cls="text-4xl font-bold mb-8 text-center text-white drop-shadow-lg"),
             Div(
                 A("Add Room", href="/add-room",
@@ -546,6 +553,91 @@ def sort_room_done():
             Swal.fire({{
                 title: 'Error!',
                 html: 'Failed to sort room.<br><small>' + {error_msg} + '</small>',
+                icon: 'error',
+                confirmButtonText: 'Back'
+            }}).then(() => {{
+                window.location.href = "/action";
+            }});
+        """)
+
+
+# --- Main Page ---
+@rt("/add-data", methods=["GET"])
+def insert_room():
+    return Div(
+        Div(
+            H1("ADD MORE DATA", cls="text-4xl font-bold mb-6 text-center text-white drop-shadow-lg"),
+            Form(
+                Input(name="chanel", placeholder="new channel", required=True,
+                      cls="block w-full mb-3 p-3 rounded bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400"),
+                Input(name="max", placeholder="max channel", required=True,
+                      cls="block w-full mb-6 p-3 rounded bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400"),
+                Button("SUBMIT", type="submit",
+                       cls="w-full py-3 rounded bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:opacity-90 transition"),
+                action="/add-room/handler", method="post"
+            ),
+            cls="bg-black/70 p-8 rounded-2xl shadow-2xl w-full max-w-md"
+        ),
+        cls="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-blue-900 p-6"
+    )
+
+# --- Hotel POST ---
+@rt("/add-room/handler", methods=["POST"])
+def add_room_handler(chanel: str = None, max: str = None):
+    try:
+        chanel = [i for i in chanel.split()]
+        max = [int(i) for i in max.split()]
+        if len(max) != len(chanel):
+            raise ValueError("Length of max and chanel must be equal")
+        
+        resp = requests.post(f"{API_URL}/add-data", json={
+            "chanel": chanel,
+            "max": max
+        })
+        try:
+            resp.raise_for_status()  
+            data = resp.json()
+        except requests.exceptions.HTTPError:
+            try:
+                error_data = resp.json()
+                error_msg =  json.dumps(error_data.get("error"))
+            except Exception:
+                error_msg =  json.dumps("Unknown error from API")
+            return Script(f"""
+                Swal.fire({{
+                    title: 'API Error!',
+                    html: {error_msg},
+                    icon: 'error',
+                    confirmButtonText: 'Back'
+                }}).then(() => {{
+                    window.location.href = "/action";
+                }});
+            """)
+            
+        message =  json.dumps(data.get("message"))
+        all_time_taken =  json.dumps(data.get("all_time_taken", "N/A"))
+        insert_time_taken =  json.dumps(data.get("insert_time_taken", "N/A"))
+        
+        return Script(f"""
+            Swal.fire({{
+                title: 'Success!',
+                html: 'Input sent to backend:<br>'
+                     + 'message: <b>' + {message} + '</b><br>'
+                     + 'insert time taken: <b>' + {insert_time_taken} + '</b><br>'
+                     + 'all time taken: <b>' + {all_time_taken} + '</b><br><br>',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }}).then(() => {{
+                window.location.href = "/action";
+            }});
+        """)
+        
+    except Exception as e:
+        error_msg = json.dumps(str(e))
+        return Script(f"""
+            Swal.fire({{
+                title: 'Error!',
+                html: 'Failed to create data.<br><small>' + {error_msg} + '</small>',
                 icon: 'error',
                 confirmButtonText: 'Back'
             }}).then(() => {{

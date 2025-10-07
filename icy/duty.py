@@ -11,13 +11,11 @@ def save_to_json(data: Any, filename: str):
     """บันทึกข้อมูลลงไฟล์ JSON"""
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
-    print(f"สร้าง JSON เรียบร้อย: {filename}")
 
 def load_from_json(filename: str) -> Any:
     """อ่านข้อมูลจากไฟล์ JSON"""
     with open(filename, "r", encoding="utf-8") as f:
         data = json.load(f)
-    print(f"อ่าน JSON เรียบร้อย: {filename}")
     return data
 
 # ------------------------------------------------------------
