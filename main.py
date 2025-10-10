@@ -48,6 +48,8 @@ async def create_data(request: Request):
         created = len(old) + len(new)
         
         global roomData
+        global count
+        count = 1
         roomData = {}
         
         start_insert = time.perf_counter()
@@ -159,17 +161,13 @@ async def add_room_api(req: Request):
                 content={"error": "Missing roomnumber"},
                 status_code=400
             )
-        print(roomnumber)
         global roomData
         global count
         start_insert = time.perf_counter()
 
-        print(roomData)
-        print(count)
         roomData, count = insert_room(roomData, roomnumber, count)
-        
-        print(roomData)
-            
+    
+        print(count)
         end_insert = time.perf_counter()
         
         if not isinstance(roomData, dict):  
