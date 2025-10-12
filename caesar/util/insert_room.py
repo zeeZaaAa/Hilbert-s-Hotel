@@ -20,6 +20,7 @@ def insert_room(db: dict, roomnumbers: list, num: int):
         while len(db) != 0:
             if new_rooms.get(start) is None:
                 while db.get(count) is None and count <= len(db):
+                    start+=1
                     count += 1
                 new_rooms[start] = db[count]
                 del db[count]
