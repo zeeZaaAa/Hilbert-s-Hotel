@@ -1,6 +1,6 @@
 def search_room(db: dict, roomnumber):
     try:
-        return db[roomnumber]
+        return str(db[roomnumber])
     except KeyError:
         return f"Room not found: {roomnumber}"
     except Exception as e:

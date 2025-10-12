@@ -7,13 +7,15 @@ def add(db :dict, list_of_guest :list):
 
     num_to_shift = len(list_of_guest)
     current_keys = list(db.keys())
+    newdb = {}
+    # shift old guests
     for key in current_keys:
         old_guest = db[key]
-        db[key+num_to_shift] = str(old_guest)
-        db.pop(key)
+        newdb[key+num_to_shift] = old_guest
 
+    # add new guests
     room_num = 1
-    for guest in list_of_guest:
-        db[room_num] = str(guest)
+    while len(list_of_guest) != 0:
+        newdb[room_num] = list_of_guest.pop()
         room_num+=1
-    return db
+    return newdb
