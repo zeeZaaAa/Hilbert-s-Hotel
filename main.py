@@ -1,5 +1,3 @@
-# for api
-# run here!
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi import Query
@@ -167,7 +165,6 @@ async def add_room_api(req: Request):
 
         roomData, count = insert_room(roomData, roomnumber, count)
     
-        print(count)
         end_insert = time.perf_counter()
         
         if not isinstance(roomData, dict):  
