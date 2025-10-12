@@ -215,7 +215,12 @@ def delete_room(roomnumber: List[str] = Query(...)):
                     content={"error": f"Room not found: {room}"},
                     status_code=404
                 )
-            delete(roomData, room)
+            result = delete(roomData, room)
+            if result != "success":
+                return JSONResponse(
+                content={"error": result},
+                status_code=500
+            )
         end_delete = time.perf_counter()
 
         return JSONResponse(
