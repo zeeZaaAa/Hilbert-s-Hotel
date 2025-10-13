@@ -1,3 +1,5 @@
+from caesar.util.insert_to_dict import insert_to_dict
+
 def add(db :dict, list_of_guest :list):
     if  not isinstance(db, dict):
         return "Error, db must be a dict"
@@ -11,11 +13,15 @@ def add(db :dict, list_of_guest :list):
     # shift old guests
     for key in current_keys:
         old_guest = db[key]
-        newdb[key+num_to_shift] = old_guest
+        result = insert_to_dict(newdb, key+num_to_shift, old_guest)
+        if result != "success":
+            return result
 
     # add new guests
     room_num = 1
     while len(list_of_guest) != 0:
-        newdb[room_num] = list_of_guest.pop()
+        result = insert_to_dict(newdb, room_num, list_of_guest.pop())
+        if result != "success":
+            return result
         room_num+=1
     return newdb

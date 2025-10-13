@@ -1,4 +1,5 @@
 from caesar.classes.Guest import Guest
+from caesar.util.insert_to_dict import insert_to_dict
 
 def insert_room(db: dict, roomnumbers: list, num: int):
     try:
@@ -12,7 +13,9 @@ def insert_room(db: dict, roomnumbers: list, num: int):
         for room in roomnumbers:
             if not isinstance(room, int) or room <= 0:
                 return f"Error, invalid room number: {room}"
-            new_rooms[room] = Guest(chanel="Force-Add", order=num)
+            result = insert_to_dict(new_rooms, room, Guest(chanel="Force-Add", order=num))
+            if result != "success":
+                return result
             num += 1
         
         start = 1
@@ -22,7 +25,9 @@ def insert_room(db: dict, roomnumbers: list, num: int):
                 while db.get(count) is None and count <= len(db):
                     start+=1
                     count += 1
-                new_rooms[start] = db[count]
+                result = insert_to_dict(new_rooms, start, db[count])
+                if result != "success":
+                    return result
                 del db[count]
                 count += 1
             start += 1
