@@ -1,12 +1,12 @@
-import json
-from typing import Any
+from caesar.classes.HashTable import HashTable
 
-
-def save_to_json(data: Any, filename: str):
+def save_to_text_from_list(data: list, filename="File/roomData.txt"):
     with open(filename, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+        text = "\n".join(f"{k}: {v}" for k, v in data)
+        f.write(text)
 
-def load_from_json(filename: str) -> Any:
-    with open(filename, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return data
+
+def save_to_text_from_hashtable(data: HashTable, filename="File/roomData.txt"):
+    with open(filename, "w", encoding="utf-8") as f:
+        text = "\n".join(f"{k}: {v}" for k, v in data.items())
+        f.write(text)

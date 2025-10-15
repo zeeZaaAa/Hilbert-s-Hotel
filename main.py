@@ -6,17 +6,19 @@ from typing import List
 import time
 from pympler import asizeof
 import json
-from caesar.controller.inputController import createGuests
-from caesar.util.insert_room import insert_room 
+from caesar.classes.HashTable import HashTable
+from caesar.util.add_ import add_
+from caesar.util.add_more import add_more   
+from caesar.util.direct_insert_room import direct_insert_room
 from caesar.util.delete import delete
 from caesar.util.sort_data import sort_data
 from caesar.util.search import search_room
-from icy.duty import save_to_json
-from pix.util.add_guest import add
+from icy.duty import save_to_text_from_hashtable, save_to_text_from_list
+
 
 app = FastAPI()
 
-roomData = {}
+roomData = HashTable()
 
 count = 1
 
@@ -31,44 +33,22 @@ async def create_data(request: Request):
         chanel = data["chanel"]
         max = data["max"]
         
-        old, new = createGuests(old_guess, chanel, max)
-        if not isinstance(old, list):
-            return JSONResponse(
-            content={"error": old},
-            status_code=400
-        )
-        if not isinstance(new, list):
-            return JSONResponse(
-            content={"error": new},
-            status_code=400
-        )
-            
-        created = len(old) + len(new)
-        
         global roomData
         global count
         count = 1
-        roomData = {}
+        roomData = HashTable()
         
         start_insert = time.perf_counter()
-
-        roomData = add(roomData, old)
-
-        roomData = add(roomData, new)
+        
+        roomData = add_(old_guess, chanel, max)
 
         end_insert = time.perf_counter()
 
-        if not isinstance(roomData, dict):
-            return JSONResponse(
-            content={"error": roomData},
-            status_code=400
-        )
-        end_time = time.perf_counter()
         
         return JSONResponse(
             content={
-                "message": f"{created} rooms created",
-                "all_time_taken": f"{end_time - start_time:.4f} seconds",
+                "message": f"{roomData.size} rooms created",
+                "all_time_taken": f"{end_insert - start_time:.4f} seconds",
                 "insert_time_taken": f"{end_insert - start_insert:.4f} seconds",
             },
             status_code=200
@@ -96,39 +76,19 @@ async def create_data(request: Request):
         chanel = data["chanel"]
         max = data["max"]
         
-        old, new = createGuests(0, chanel, max)
-        if not isinstance(old, list):
-            return JSONResponse(
-            content={"error": old},
-            status_code=400
-        )
-        if not isinstance(new, list):
-            return JSONResponse(
-            content={"error": new},
-            status_code=400
-        )
-        
-        created = len(old) + len(new)
         
         global roomData
         
         start_insert = time.perf_counter()
 
-        roomData = add(roomData, new)
+        roomData = add_more(roomData, chanel, max)
 
         end_insert = time.perf_counter()
 
-        if not isinstance(roomData, dict):
-            return JSONResponse(
-            content={"error": roomData},
-            status_code=400
-        )
-        end_time = time.perf_counter()
-        
         return JSONResponse(
             content={
-                "message": f"{created} rooms created",
-                "all_time_taken": f"{end_time - start_time:.4f} seconds",
+                "message": f"{roomData.size} rooms created",
+                "all_time_taken": f"{end_insert - start_time:.4f} seconds",
                 "insert_time_taken": f"{end_insert - start_insert:.4f} seconds",
             },
             status_code=200
@@ -161,17 +121,21 @@ async def add_room_api(req: Request):
             )
         global roomData
         global count
+            
+        for number in roomnumber:
+            number = int(number)
+            if roomData.get(number) is not None:
+                return JSONResponse(
+                    content={"error": f"Room {number} is already occupied"},
+                    status_code=400
+                )
+        
         start_insert = time.perf_counter()
-
-        roomData, count = insert_room(roomData, roomnumber, count)
+        for number in roomnumber:
+            count = direct_insert_room(roomData, int(number), count)
     
         end_insert = time.perf_counter()
         
-        if not isinstance(roomData, dict):  
-            return JSONResponse(
-                content={"error": roomData},
-                status_code=400
-            )
         
         return JSONResponse(
             content={"message": f"{len(roomnumber)} rooms created",
@@ -204,10 +168,8 @@ def delete_room(roomnumber: List[str] = Query(...)):
                 content={"error": "Missing roomnumber"},
                 status_code=400
             )
-            
         global roomData
-        
-        start_delete = time.perf_counter()
+            
         for room in roomnumber:
             room = int(room)
             if roomData.get(room) is None:
@@ -215,6 +177,10 @@ def delete_room(roomnumber: List[str] = Query(...)):
                     content={"error": f"Room not found: {room}"},
                     status_code=404
                 )
+        
+        start_delete = time.perf_counter()
+        for room in roomnumber:
+            room = int(room)
             result = delete(roomData, room)
             if result != "success":
                 return JSONResponse(
@@ -255,7 +221,6 @@ def search(roomnumber: List[str] = Query(...)):
         start_search = time.perf_counter()
         for room in roomnumber:
             room = int(room)
-            print(room)
             if roomData.get(room) is None:
                 return JSONResponse(
                     content={"error": f"Room not found: {room}"},
@@ -294,20 +259,16 @@ def sort_room():
             
         start_sort = time.perf_counter()
             
-        roomData = sort_data(roomData)
+        roomData_list = sort_data(roomData)
         
         end_sort = time.perf_counter()
 
-        if not isinstance(roomData, dict):
-            return JSONResponse(
-            content={"error": roomData},
-            status_code=500
-            )
+        save_to_text_from_list(roomData_list)
         
         end_time = time.perf_counter()
         
         return JSONResponse(
-            content={"sorted_rooms": f"sorted {len(roomData)} rooms done!",
+            content={"sorted_rooms": f"sorted {roomData.size} rooms done!",
                 "all_time_taken": f"{end_time - start_time:.4f} seconds",
                 "sort_time_taken": f"{end_sort - start_sort:.4f} seconds",
                 },
@@ -356,10 +317,8 @@ def save_file():
                 content={"error": "No rooms available"},
                 status_code=404
             )
-        
-        str_data = {k: str(v) for k, v in roomData.items()}
             
-        save_to_json(str_data, "File/roomData.json")
+        save_to_text_from_hashtable(roomData)
         end_save = time.perf_counter()
         
         return JSONResponse(

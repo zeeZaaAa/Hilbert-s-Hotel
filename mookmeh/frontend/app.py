@@ -70,9 +70,9 @@ def main_page():
 @rt("/hotel", methods=["POST"])
 def hotel_page(old_guess: str = None, chanel: str = None, max: str = None):
     try:
-        chanel = [i for i in chanel.split()]
+        chanel = int(chanel)
         max = [int(i) for i in max.split()]
-        if len(max) != len(chanel):
+        if len(max) != chanel:
             raise ValueError("Length of max and chanel must be equal")
         
         resp = requests.post(f"{API_URL}/create-data", json={
@@ -585,9 +585,9 @@ def insert_room():
 @rt("/add-room/handler", methods=["POST"])
 def add_room_handler(chanel: str = None, max: str = None):
     try:
-        chanel = [i for i in chanel.split()]
+        chanel = int(chanel)
         max = [int(i) for i in max.split()]
-        if len(max) != len(chanel):
+        if len(max) != chanel:
             raise ValueError("Length of max and chanel must be equal")
         
         resp = requests.post(f"{API_URL}/add-data", json={

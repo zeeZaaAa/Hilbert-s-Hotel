@@ -1,3 +1,5 @@
+from caesar.classes.HashTable import HashTable
+
 def merge(left, right):
     result = []
     i = j = 0
@@ -31,11 +33,12 @@ def merge_sort_iterative(arr):
     return result
 
 
-def sort_data(db: dict):
+def sort_data(db: HashTable):
     try:
         items = list(db.items())
         sorted_items = merge_sort_iterative(items)
-        return dict(sorted_items)
+        return sorted_items
+        
     except ValueError as e:
         return f"ValueError: {str(e)}"
     except TypeError as e:
