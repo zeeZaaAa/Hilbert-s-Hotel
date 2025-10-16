@@ -11,6 +11,8 @@ def add_(old_guest :int, chanel: int, nums_of_new_guest :list):
     for diag in range(chanel + max_of_all+1):
         for r in range(diag + 1):
             c = diag - r
+            if r >= chanel + 1:
+                break
             if r == 0 and c < old_guest:
                 # print(f'old: {calculate_roomnumber(r,c)}')
                 # print(r,c)

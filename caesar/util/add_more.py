@@ -12,10 +12,16 @@ def add_more(old_guest :HashTable, chanel: int, nums_of_new_guest :list):
     for diag in range(chanel + max_of_all+1):
         for r in range(diag + 1):
             c = diag - r
+            if r >= chanel + 1:
+                break
             if r == 0 and c < size:
                 # print(f'old: {calculate_roomnumber(r,c)}')
                 # print(r,c)
-                db.insert(calculate_roomnumber(r,c), old_guest.pop_any()[1])
+                poped_guest = old_guest.pop_any()[1]
+                poped_guest.chanel = str(poped_guest.chanel)
+                if not "old" in poped_guest.chanel:
+                    poped_guest.chanel = poped_guest.chanel + "_old"
+                db.insert(calculate_roomnumber(r,c), poped_guest)
             elif r <= chanel and c < nums_of_new_guest[r-1]:
                 # print(f'new: {calculate_roomnumber(r,c)}')
                 # print(r,c)

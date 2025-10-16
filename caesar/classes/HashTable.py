@@ -53,20 +53,6 @@ class HashTable:
             i += 1
         return None
 
-    def remove(self, key):
-        index = self._hash(key)
-        i = 0
-        while i < self.capacity:
-            new_index = self._probe(index, i)
-            slot = self.table[new_index]
-            if slot is None:
-                return False
-            if slot is not self.delete and slot[0] == key:
-                self.table[new_index] = self.delete
-                self.size -= 1
-                return True
-            i += 1
-        return False
     
     def remove(self, key):
         index = self._hash(key)
