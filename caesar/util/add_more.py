@@ -16,7 +16,7 @@ def add_more(old_guest :HashTable, chanel: int, nums_of_new_guest :list):
                 # print(f'old: {calculate_roomnumber(r,c)}')
                 # print(r,c)
                 db.insert(calculate_roomnumber(r,c), old_guest.pop_any()[1])
-            elif r <= chanel and c < nums_of_new_guest[r-1]:
+            elif r <= chanel and c < nums_of_new_guest[r-1] and r != 0:
                 # print(f'new: {calculate_roomnumber(r,c)}')
                 # print(r,c)
                 db.insert(calculate_roomnumber(r,c), Guest(chanel=r, order=c+1))
