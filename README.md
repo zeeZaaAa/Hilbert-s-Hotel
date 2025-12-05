@@ -3,7 +3,7 @@
 This is a Hilbert's Hotel project, created to explain the paradox of infinity in the Object-Oriented Data Structures class.
 
 ## Description
-Hilbert's Hotel (or Hilbert's Paradox) is a thought experiment by David Hilbert illustrating that a fully occupied hotel with infinite rooms can always accommodate more guests, even infinitely many, by shifting existing guests to new rooms 
+Hilbert's Hotel (or Hilbert's Paradox) is a thought experiment by David Hilbert illustrating that a fully occupied hotel with infinite rooms can always accommodate more guests, even infinitely many, by calculating existing guests to new rooms 
 
 ## Features
 * **Interactive Web Simulation:** Visualizes the state of the Infinite Hotel and room calculating using FastHTML.
