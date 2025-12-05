@@ -1,8 +1,5 @@
 fastapi
 uvicorn
-fasthtml
+fasthtml-python
 requests
 pympler
-
-#install ทุก lib ทีเดียวด้วย
-pip install -r requirements.txt
